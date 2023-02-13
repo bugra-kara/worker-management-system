@@ -20,7 +20,7 @@ import {
 import {Offices} from '../models';
 import {OfficesRepository} from '../repositories';
 
-export class OfficesControllerController {
+export class OfficesController {
   constructor(
     @repository(OfficesRepository)
     public officesRepository : OfficesRepository,

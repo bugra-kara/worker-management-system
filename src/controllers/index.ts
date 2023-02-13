@@ -1,4 +1,3 @@
-export * from './worker-controller.controller';
-export * from './departmants-controller.controller';
-export * from './offices-controller.controller';
-export * from './title-change-controller.controller';
+export * from './worker.controller';
+export * from './departmants.controller';
+export * from './offices.controller';

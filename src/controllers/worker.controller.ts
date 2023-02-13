@@ -17,7 +17,7 @@ import {
 import {Worker} from '../models';
 import {DepartmantsRepository, WorkerRepository} from '../repositories';
 
-export class WorkerControllerController {
+export class WorkerController {
   constructor(
     @repository(WorkerRepository)
     public workerRepository : WorkerRepository,
@@ -173,6 +173,40 @@ export class WorkerControllerController {
         'application/json': {
           schema: getModelSchemaRef(Worker, {partial: true}),
         },
+      },
+    })
+    worker: Worker,
+  ): Promise<void> {
+    await this.workerRepository.updateById(id, worker);
+  }
+  @patch('/workers/change-title/{id}')
+  @response(204, {
+    description: 'Worker PATCH success',
+  })
+  async updateTitle(
+    @param.path.number('id') id: number,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['date_of_join','end_date','departmant','title'],
+            properties: {
+              start_date: {
+                type: 'string',
+              },
+              end_date: {
+                type: 'string',
+              },
+              title: {
+                type: 'string',
+              },
+              departmant: {
+                type: 'integer'
+              }
+            }
+          }
+        }
       },
     })
     worker: Worker,
