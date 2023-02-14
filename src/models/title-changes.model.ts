@@ -1,6 +1,12 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model({settings: {strict: false}})
+@model({settings: {
+  strict: true,
+  postgresql: {
+    schmea: 'public',
+    table: 'title_changes'
+  }
+}})
 export class TitleChanges extends Entity {
   @property({
     type: 'number',
@@ -17,7 +23,7 @@ export class TitleChanges extends Entity {
 
   @property({
     type: 'date',
-    required: true,
+    required: false,
   })
   end_date: string;
 
@@ -32,6 +38,18 @@ export class TitleChanges extends Entity {
     required: true,
   })
   departmant: string;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  user_id: number;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  status: number;
 
   // Define well-known properties here
 

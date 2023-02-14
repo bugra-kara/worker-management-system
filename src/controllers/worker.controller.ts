@@ -14,8 +14,8 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Worker} from '../models';
-import {DepartmantsRepository, WorkerRepository} from '../repositories';
+import {TitleChanges, Worker} from '../models';
+import {DepartmantsRepository, WorkerRepository, TitleChangesRepository} from '../repositories';
 
 export class WorkerController {
   constructor(
@@ -23,6 +23,8 @@ export class WorkerController {
     public workerRepository : WorkerRepository,
     @repository(DepartmantsRepository)
     public departmantsRepositry : DepartmantsRepository,
+    @repository(TitleChangesRepository)
+    public titleChangeRepository : TitleChangesRepository
   ) {}
 
   @post('/workers')
@@ -53,7 +55,20 @@ export class WorkerController {
     if(worker.title === 'Founder' || worker.title === 'Co-Founder') {
       newWorker.level = 1
     }
-    return this.workerRepository.create(newWorker);
+    try {
+      const response = await this.workerRepository.create(newWorker);
+      await this.titleChangeRepository.create({
+        start_date: response.date_of_join,
+        title: response.title,
+        status: 1,
+        user_id: response.id,
+        departmant: response.departmant
+      })
+      return response
+    } catch (error) {
+      console.log(error);
+      return error
+    }
   }
 
   @get('/workers')
@@ -162,6 +177,21 @@ export class WorkerController {
     return await this.workerRepository.find({where: { manager: id, id: {"neq": id}}, order:['level ASC']});
   }
 
+  @get('/workers/change-title/{id}')
+  @response(200, {
+    description: 'Manager id model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Worker, {includeRelations: true}),
+      },
+    },
+  })
+  async findChangeTitleHistory(
+    @param.path.number('id') id: number
+  ): Promise<TitleChanges[]> {
+    return this.titleChangeRepository.find({where: {user_id: id}})
+  }
+
   @patch('/workers/{id}')
   @response(204, {
     description: 'Worker PATCH success',
@@ -171,7 +201,33 @@ export class WorkerController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Worker, {partial: true}),
+          schema: {
+            type: 'object',
+            required: ['name', 'surname', 'email', 'phone', 'salary', 'manager', 'status'],
+            properties: {
+              name: {
+                type: "string",
+              },
+              surname: {
+                type: "string"
+              },
+              email: {
+                type: "string"
+              },
+              phone: {
+                type: "string"
+              },
+              salary: {
+                type: "string"
+              },
+              manager: {
+                type: "number"
+              },
+              status: {
+                type: "number"
+              },
+            }
+          },
         },
       },
     })
@@ -179,6 +235,7 @@ export class WorkerController {
   ): Promise<void> {
     await this.workerRepository.updateById(id, worker);
   }
+
   @patch('/workers/change-title/{id}')
   @response(204, {
     description: 'Worker PATCH success',
@@ -190,12 +247,12 @@ export class WorkerController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['date_of_join','end_date','departmant','title'],
+            required: ['date_of_join','old_end_date','departmant','title'],
             properties: {
               start_date: {
                 type: 'string',
               },
-              end_date: {
+              old_end_date: {
                 type: 'string',
               },
               title: {
@@ -211,7 +268,29 @@ export class WorkerController {
     })
     worker: Worker,
   ): Promise<void> {
-    await this.workerRepository.updateById(id, worker);
+    try {
+      let level:string | undefined;
+      if(worker.title === 'Budget/Accounting Analyst' || worker.title === "Graphic Designer" || worker.title === "Quality Control Specialist" || worker.title === 'Software Developer') {
+        level = "3"
+      }
+      if(worker.title === 'Chief Graphic Designer' || worker.title === "Quality Control Manager" || worker.title === "Budget/Accounting Manager" || worker.title === 'Lead Software Developer') {
+        level = "2"
+      }
+      if(worker.title === 'Founder' || worker.title === 'Co-Founder') {
+        level = "1"
+      }
+      await this.workerRepository.updateById(id, {title:worker.title, departmant:worker.departmant, level: level});
+      await this.titleChangeRepository.updateAll({end_date: worker.old_end_date},{and:[{user_id: id},{end_date: null}]})
+      await this.titleChangeRepository.create({
+        start_date: worker.start_date,
+        title: worker.title,
+        user_id: id,
+        departmant: worker.departmant,
+        status: 1
+      })
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @del('/workers/{id}')

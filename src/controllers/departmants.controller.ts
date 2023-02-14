@@ -90,7 +90,24 @@ export class DepartmantsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Departmants, {partial: true}),
+          schema: {
+            type: 'object',
+            required: ['departmant_name', 'location', 'status', 'manager'],
+            properties: {
+              departmant_name: {
+                type: "string",
+              },
+              location: {
+                type: "number"
+              },
+              status: {
+                type: "number"
+              },
+              manager: {
+                type: "number"
+              }
+            }
+          },
         },
       },
     })
