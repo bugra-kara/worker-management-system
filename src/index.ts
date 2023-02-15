@@ -1,5 +1,4 @@
 import {ApplicationConfig, WorkerManagementSystemApplication} from './application';
-
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
@@ -30,6 +29,14 @@ if (require.main === module) {
         // useful when used with OpenAPI-to-GraphQL to locate your application
         setServersFromRequest: true,
       },
+      cors: { 
+        origin: 'https://medyaespor.com', 
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        preflightContinue: false,
+        optionsSuccessStatus: 200,
+        maxAge: 86400,
+        credentials: true,
+      }
     },
   };
   main(config).catch(err => {

@@ -44,7 +44,12 @@ export class DepartmantsController {
     })
     departmants: Omit<Departmants, 'id'>,
   ): Promise<Departmants> {
-    return this.departmantsRepository.create(departmants);
+    try {
+      const response = await this.departmantsRepository.create(departmants);
+      return response
+    } catch (error) {
+      return error
+    }
   }
 
   @get('/departmants')
@@ -121,6 +126,10 @@ export class DepartmantsController {
     description: 'Departmants DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.departmantsRepository.deleteById(id);
+    try {
+      await this.departmantsRepository.deleteById(id);
+    } catch (error) {
+      return error
+    }
   }
 }

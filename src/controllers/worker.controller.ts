@@ -66,7 +66,6 @@ export class WorkerController {
       })
       return response
     } catch (error) {
-      console.log(error);
       return error
     }
   }
@@ -141,7 +140,6 @@ export class WorkerController {
       });
       return result
     } catch (error) {
-      console.log(error);
       return error
     }
   }
@@ -203,7 +201,7 @@ export class WorkerController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['name', 'surname', 'email', 'phone', 'salary', 'manager', 'status'],
+            required: ['name', 'surname', 'email', "date_of_join", 'phone', 'salary', 'manager', 'status'],
             properties: {
               name: {
                 type: "string",
@@ -217,8 +215,11 @@ export class WorkerController {
               phone: {
                 type: "string"
               },
-              salary: {
+              date_of_join: {
                 type: "string"
+              },
+              salary: {
+                type: "number"
               },
               manager: {
                 type: "number"
@@ -289,7 +290,7 @@ export class WorkerController {
         status: 1
       })
     } catch (error) {
-      console.log(error);
+      response(404)
     }
   }
 
