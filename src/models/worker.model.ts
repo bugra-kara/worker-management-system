@@ -120,7 +120,7 @@ export class Worker extends Entity {
       nullable: 'NO',
     },
   })
-  departmant?: string;
+  departmant?: number;
 
   @property({
     type: 'string',
@@ -148,7 +148,7 @@ export class Worker extends Entity {
       nullable: 'NO',
     },
   })
-  manager: string;
+  manager: number;
 
   @property({
     type: 'number',
@@ -162,7 +162,7 @@ export class Worker extends Entity {
       nullable: 'YES',
     },
   })
-  status: string;
+  status: number;
 
   @property({
     type: 'number',
@@ -176,7 +176,7 @@ export class Worker extends Entity {
       nullable: 'YES',
     },
   })
-  level: string;
+  level: number;
 
   // Define well-known properties here
 

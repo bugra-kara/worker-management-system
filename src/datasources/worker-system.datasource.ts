@@ -4,10 +4,10 @@ import {juggler} from '@loopback/repository';
 const config = {
   name: 'WorkerSystem',
   connector: 'postgresql',
-  host: 'localhost',
+  host: 'localhost', //host.docker.internal
   port: 5432,
   user: 'postgres',
-  password: 'Abk1512?',
+  password: 'Workerdb1?',
   database: 'worker-system'
 };
 

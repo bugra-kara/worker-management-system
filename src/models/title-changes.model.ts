@@ -34,10 +34,10 @@ export class TitleChanges extends Entity {
   title: string;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  departmant: string;
+  departmant: number;
 
   @property({
     type: 'number',

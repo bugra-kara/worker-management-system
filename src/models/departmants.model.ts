@@ -49,21 +49,21 @@ export class Departmants extends Entity {
       nullable: 'YES',
     },
   })
-  manager: string;
+  manager: number;
 
   @property({
     type: 'number',
     required: true,
     postgresql: {
-      columnName: 'location',
-      dataType: 'int',
+      columnName: 'location_id',
+      dataType: 'bigint',
       dataLength: null,
       dataPrecision: null,
       dataScale: null,
       nullable: 'YES',
     },
   })
-  location: string;
+  location: number;
 
   @property({
     type: 'number',
@@ -77,7 +77,7 @@ export class Departmants extends Entity {
       nullable: 'YES',
     },
   })
-  status: string;
+  status: number;
   // Define well-known properties here
 
   // Indexer property to allow additional data

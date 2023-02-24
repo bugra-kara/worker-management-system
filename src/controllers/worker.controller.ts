@@ -9,13 +9,13 @@ import {
   get,
   getModelSchemaRef,
   patch,
-  put,
   del,
   requestBody,
   response,
 } from '@loopback/rest';
 import {TitleChanges, Worker} from '../models';
 import {DepartmantsRepository, WorkerRepository, TitleChangesRepository} from '../repositories';
+import { LevelSet, Salary } from '../services';
 
 export class WorkerController {
   constructor(
@@ -46,15 +46,8 @@ export class WorkerController {
     worker: Omit<Worker, 'id'>,
   ): Promise<Worker> {
     let newWorker = {...worker}
-    if(worker.title === 'Budget/Accounting Analyst' || worker.title === "Graphic Designer" || worker.title === "Quality Control Specialist" || worker.title === 'Software Developer') {
-      newWorker.level = 3
-    }
-    if(worker.title === 'Chief Graphic Designer' || worker.title === "Quality Control Manager" || worker.title === "Budget/Accounting Manager" || worker.title === 'Lead Software Developer') {
-      newWorker.level = 2
-    }
-    if(worker.title === 'Founder' || worker.title === 'Co-Founder') {
-      newWorker.level = 1
-    }
+    let response =new LevelSet(worker.title, 0)
+    newWorker.level = response.level
     try {
       const response = await this.workerRepository.create(newWorker);
       await this.titleChangeRepository.create({
@@ -103,42 +96,17 @@ export class WorkerController {
   async findSallary(
   ): Promise<Worker[]> {
     try {
-      const response = await this.workerRepository.find({
-        offset: 0,
-        limit: 100,
-        skip: 0,
+      const workers = await this.workerRepository.find({
         order: ['id DESC'],
         where: { status: 1 },
         fields: {
-          id: false,
-          name: false,
-          surname: false,
-          email: false,
-          phone: false,
-          date_of_join: false,
           salary: true,
           departmant: true,
-          title: false,
-          manager: false,
-          status: false,
-          level: false
         }
-      })
-      let newMap = new Map<any,any>()
-      let result = new Array()
-      response.map((item,index)=> {
-        if(newMap.has(item.departmant)&&index !== 0){
-          newMap.forEach((value,key)=>{if(key === item.departmant){newMap.set(key, {salary:((value.salary*value.count) + item.salary)/(value.count+1), count:value.count+1})}})
-        }
-        else {
-          newMap.set(item.departmant, {salary:item.salary, count:1})
-        }
-      return item})
-      const departmants = await this.departmantsRepositry.find({where: {status:1}, skip:0, order:['departmant_name ASC'], fields: {id:true,departmant_name: true,manager: false, location:false, status:false}})
-      departmants.map((item)=>{
-        newMap.forEach((value,key)=>{if(item.id === key){result!.push({departmant_name:item.departmant_name, avg_salary:value.salary})}})
       });
-      return result
+      const departmants = await this.departmantsRepositry.find({where: {status:1}, skip:0, order:['departmant_name ASC'], fields: {id:true,departmant_name: true,manager: false, location:false, status:false}})
+      const result = new Salary(workers, departmants)
+      return result.salaries
     } catch (error) {
       return error
     }
@@ -248,7 +216,7 @@ export class WorkerController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['date_of_join','old_end_date','departmant','title'],
+            required: ['date_of_join', 'old_end_date', 'departmant', 'title', 'manager'],
             properties: {
               start_date: {
                 type: 'string',
@@ -261,6 +229,9 @@ export class WorkerController {
               },
               departmant: {
                 type: 'integer'
+              },
+              manager: {
+                type: 'integer'
               }
             }
           }
@@ -270,17 +241,8 @@ export class WorkerController {
     worker: Worker,
   ): Promise<void> {
     try {
-      let level:string | undefined;
-      if(worker.title === 'Budget/Accounting Analyst' || worker.title === "Graphic Designer" || worker.title === "Quality Control Specialist" || worker.title === 'Software Developer') {
-        level = "3"
-      }
-      if(worker.title === 'Chief Graphic Designer' || worker.title === "Quality Control Manager" || worker.title === "Budget/Accounting Manager" || worker.title === 'Lead Software Developer') {
-        level = "2"
-      }
-      if(worker.title === 'Founder' || worker.title === 'Co-Founder') {
-        level = "1"
-      }
-      await this.workerRepository.updateById(id, {title:worker.title, departmant:worker.departmant, level: level});
+      let response =new LevelSet(worker.title, 0)
+      await this.workerRepository.updateById(id, {title:worker.title, departmant:worker.departmant, level: response.level, manager: worker.manager});
       await this.titleChangeRepository.updateAll({end_date: worker.old_end_date},{and:[{user_id: id},{end_date: null}]})
       await this.titleChangeRepository.create({
         start_date: worker.start_date,
@@ -299,6 +261,7 @@ export class WorkerController {
     description: 'Worker DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
+    await this.titleChangeRepository.deleteAll({user_id: id})
     await this.workerRepository.deleteById(id);
   }
 }

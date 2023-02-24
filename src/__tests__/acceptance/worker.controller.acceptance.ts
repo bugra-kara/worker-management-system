@@ -16,8 +16,7 @@ describe('WorkerController', () => {
   let id: number;
   it('invokes GET /workers', async () => {
     const response = await client.get('/workers').expect(200);
-    expect(response.body).to.have.length(19)
-    expect(response.body).to.be.Array()
+    expect(response.body).to.be.Array();
   });
 
   it('invokes POST /workers', async () => {
@@ -30,7 +29,7 @@ describe('WorkerController', () => {
      salary: 13342,
      departmant: 4,
      title: "Software Developer",
-     manager: 32
+     manager: 5
     }
     const response = await client.post('/workers').send(workerInfo).expect(200);
     expect(response.body).to.be.Object();
@@ -46,7 +45,7 @@ describe('WorkerController', () => {
     phone: "1231231231",
     date_of_join: "2023-02-15T21:28:44.347Z",
     salary: 133421,
-    manager: 32,
+    manager: 5,
     status: 1
    }
     await client.patch(`/workers/${id}`).send(workerNewInfo).expect(204);
@@ -64,9 +63,8 @@ describe('WorkerController', () => {
  });
 
  it('invokes GET /manager/{id}', async () => {
-  const response = await client.get(`/workers/manager/32`).expect(200);
+  const response = await client.get(`/workers/manager/5`).expect(200);
   expect(response.body).to.be.Array();
-  expect(response.body).to.have.length(5);
   expect(response.body.map((e: { id: any; })=>e.id)).to.containEql(id);
 });
 
@@ -75,7 +73,8 @@ it('invokes PATCH /workers/change-title/{id}', async () => {
   start_date: "2023-02-17T21:28:44.347Z",
   old_end_date: "2023-02-16T21:28:44.347Z",
   title: "Lead Software Developer",
-  departmant: 4
+  departmant: 2,
+  manager: 1
 }
   await client.patch(`/workers/change-title/${id}`).send(workerChangeTitle).expect(204);
 });

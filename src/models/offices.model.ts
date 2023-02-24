@@ -56,14 +56,14 @@ export class Offices extends Entity {
     required: true,
     postgresql: {
       columnName: 'p_code',
-      dataType: 'int',
+      dataType: 'text',
       dataLength: null,
       dataPrecision: null,
       dataScale: null,
       nullable: 'YES',
     },
   })
-  p_code: number;
+  p_code: string;
 
   @property({
     type: 'string',
@@ -106,7 +106,7 @@ export class Offices extends Entity {
       nullable: 'YES',
     },
   })
-  status: string;
+  status: number;
 
   // Define well-known properties here
 

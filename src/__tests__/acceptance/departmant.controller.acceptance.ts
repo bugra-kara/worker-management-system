@@ -22,7 +22,7 @@ describe('DepartmantsController', () => {
   it('invokes POST /departmants', async () => {
     let departmantInfo = {
       departmant_name: "test",
-      manager: 20,
+      manager: 1,
       location: 1,
       status: 1
     }
@@ -33,7 +33,7 @@ describe('DepartmantsController', () => {
   it('invokes PATCH /departmants/{id}', async () => {
     let departmantNewInfo = {
       departmant_name: "test2",
-      manager: 29,
+      manager: 1,
       location: 3,
       status: 0
     }
