@@ -4,7 +4,7 @@ import {juggler} from '@loopback/repository';
 const config = {
   name: 'WorkerSystem',
   connector: 'postgresql',
-  host: 'localhost', //host.docker.internal
+  host: 'host.docker.internal', //'localhost'
   port: 5432,
   user: 'postgres',
   password: 'Workerdb1?',
